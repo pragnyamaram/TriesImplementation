@@ -1,0 +1,76 @@
+class TrieNode{
+    public:
+    char data;
+    unordered_map<char,TrieNode*> children;
+    bool isTerminal;
+    TrieNode(char val){
+        data = val;
+        isTerminal = false;
+    }
+};
+void insertWord(string word,TrieNode* root){
+    if(word.length()==0){
+        root->isTerminal = true;
+        return;
+    }
+    
+    char ch = word[0];
+    TrieNode* child;
+    if(root->children.find(ch)!=root->children.end()){
+        child = root->children[ch];
+    }
+    else{
+        child = new TrieNode(ch);
+        root->children[ch]=child;
+    }
+    insertWord(word.substr(1),child);
+}
+bool searchDupe(string& word,TrieNode* root, int index){
+    if(index==word.size())  return root->isTerminal;
+    char ch = word[index];
+    if(root->children.find(ch)==root->children.end())   return false;
+    return searchDupe(word,root->children[ch],index+1);
+}
+bool searchByMatchingAnyChar(string &word, TrieNode* root, int index){
+    if(index == word.size())    return false;
+
+    char ch = word[index];
+    for(auto &p:root->children){
+        if(p.first==ch){
+            if(searchByMatchingAnyChar(word,p.second,index+1)){
+                return true;
+            }
+        }
+        else {
+            if(searchDupe(word,p.second,index+1)){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+class MagicDictionary {
+public:
+    TrieNode* root;;
+    MagicDictionary() {
+        root = new TrieNode('\0');
+    }
+    
+    void buildDict(vector<string> dictionary) {
+        for(int i=0;i<dictionary.size();i++){
+            insertWord(dictionary[i],root);
+        }
+    }
+    
+    bool search(string searchWord) {
+        return searchByMatchingAnyChar(searchWord,root,0);
+        
+    }
+};
+
+/**
+ * Your MagicDictionary object will be instantiated and called as such:
+ * MagicDictionary* obj = new MagicDictionary();
+ * obj->buildDict(dictionary);
+ * bool param_2 = obj->search(searchWord);
+ */
