@@ -1,0 +1,77 @@
+class TrieNode{
+    public:
+    char data;
+    unordered_map<char,TrieNode*> children;
+    bool isTerminal;
+    TrieNode(char val){
+        data = val;
+        isTerminal = false;
+    }
+
+};
+void insertWord(string word,TrieNode* root){
+    if(word.length()==0){
+        root->isTerminal = true;
+        return;
+    }
+    
+    char ch = word[0];
+    TrieNode* child;
+    if(root->children.find(ch)!=root->children.end()){
+        child = root->children[ch];
+    }
+    else{
+        child = new TrieNode(ch);
+        root->children[ch]=child;
+    }
+    insertWord(word.substr(1),child);
+}
+bool searchWordWithDotMatch(string word, TrieNode* root){
+    if(word.empty()){
+        return root->isTerminal;
+    }
+    char ch = word[0];
+    if(ch == '.'){
+        for(auto &i:root->children){
+            //complete this
+            TrieNode* child = i.second;
+            if(searchWordWithDotMatch(word.substr(1),child)){
+                return true;
+            }
+        }
+        return false;
+    }
+    else{
+        if(root->children.find(ch)==root->children.end())
+            return false;
+        TrieNode* child = root->children[ch];
+        return searchWordWithDotMatch(word.substr(1), child);
+    }
+
+}
+class WordDictionary {
+public:
+    TrieNode* root;
+    WordDictionary() {
+        root = new TrieNode('\0');
+    }
+    
+    void addWord(string word) {
+        insertWord(word,root);
+    }
+    
+    bool search(string word) {
+        bool ans = searchWordWithDotMatch(word,root);
+        return ans;
+        
+    }
+};
+
+/**
+ * Your WordDictionary object will be instantiated and called as such:
+ * WordDictionary* obj = new WordDictionary();
+ * obj->addWord(word);
+ * bool param_2 = obj->search(word);
+ */
+
+
